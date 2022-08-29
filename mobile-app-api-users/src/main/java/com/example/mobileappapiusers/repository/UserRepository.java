@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends CrudRepository<UserEntity, Integer> {
 
     UserEntity findByEmail(String username);
+
+    UserEntity findByUserId(String userId);
 }

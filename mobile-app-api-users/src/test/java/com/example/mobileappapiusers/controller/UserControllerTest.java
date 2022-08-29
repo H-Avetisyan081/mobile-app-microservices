@@ -4,9 +4,13 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 import com.example.mobileappapiusers.model.UserRequest;
+import com.example.mobileappapiusers.model.UserResponseModel;
 import com.example.mobileappapiusers.model.UserRest;
 import com.example.mobileappapiusers.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,37 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    /**
+     * Method under test: {@link UserController#status()}
+     */
+    @Test
+    void testStatus() throws Exception {
+        when(environment.getProperty((String) any())).thenReturn("Property");
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/users/status/check");
+        MockMvcBuilders.standaloneSetup(userController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("text/plain;charset=ISO-8859-1"))
+                .andExpect(MockMvcResultMatchers.content().string("Working on port Property"));
+    }
+
+    /**
+     * Method under test: {@link UserController#status()}
+     */
+    @Test
+    void testStatus2() throws Exception {
+        when(environment.getProperty((String) any())).thenReturn("Property");
+        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/users/status/check");
+        getResult.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(userController)
+                .build()
+                .perform(getResult)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("text/plain;charset=ISO-8859-1"))
+                .andExpect(MockMvcResultMatchers.content().string("Working on port Property"));
+    }
 
     /**
      * Method under test: {@link UserController#createUser(UserRequest)}
@@ -128,6 +163,31 @@ class UserControllerTest {
                 .build()
                 .perform(requestBuilder);
         actualPerformResult.andExpect(MockMvcResultMatchers.status().is(400));
+    }
+
+    /**
+     * Method under test: {@link UserController#getUser(String)}
+     */
+    @Test
+    void testGetUser() throws Exception {
+        UserResponseModel userResponseModel = new UserResponseModel();
+        userResponseModel.setAlbums(new ArrayList<>());
+        userResponseModel.setEmail("jane.doe@example.org");
+        userResponseModel.setFirstName("Jane");
+        userResponseModel.setLastName("Doe");
+        userResponseModel.setPassword("iloveyou");
+        userResponseModel.setUserId("42");
+        when(userService.getUserByUserId((String) any())).thenReturn(userResponseModel);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/users/{userId}", "42");
+        MockMvcBuilders.standaloneSetup(userController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.content()
+                        .string(
+                                "{\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"email\":\"jane.doe@example.org\",\"password\":\"iloveyou\",\"userId\":"
+                                        + "\"42\",\"albums\":[]}"));
     }
 }
 

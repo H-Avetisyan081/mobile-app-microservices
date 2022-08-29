@@ -1,5 +1,6 @@
 package com.example.mobileappapiusers.service;
 
+import com.example.mobileappapiusers.model.UserResponseModel;
 import com.example.mobileappapiusers.model.UserRest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,4 +12,7 @@ public interface UserService extends UserDetailsService {
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 
     UserRest getUserDetailsByEmail(String email);
+
+    UserResponseModel getUserByUserId(String userId);
+
 }

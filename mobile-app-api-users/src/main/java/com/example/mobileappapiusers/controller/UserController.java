@@ -1,6 +1,7 @@
 package com.example.mobileappapiusers.controller;
 
 import com.example.mobileappapiusers.model.UserRequest;
+import com.example.mobileappapiusers.model.UserResponseModel;
 import com.example.mobileappapiusers.model.UserRest;
 import com.example.mobileappapiusers.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,15 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(userRest,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponseModel> getUser(@PathVariable ("userId") String userId){
+
+        //UserRest userRest = userService.getUserByUserId(userId);
+        UserResponseModel userByUserId = userService.getUserByUserId(userId); //    users/ahfvjasgfjs       ---->            albums/users/{id}/albums
+
+        return ResponseEntity.status(HttpStatus.OK).body(userByUserId);
     }
 
 

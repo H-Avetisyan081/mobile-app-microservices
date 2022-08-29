@@ -1,6 +1,9 @@
 package com.example.mobileappapiusers.service;
 
 import com.example.mobileappapiusers.data.UserEntity;
+import com.example.mobileappapiusers.model.AlbumResponseModel;
+import com.example.mobileappapiusers.model.AlbumsServiceClient;
+import com.example.mobileappapiusers.model.UserResponseModel;
 import com.example.mobileappapiusers.model.UserRest;
 import com.example.mobileappapiusers.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -13,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,11 +26,12 @@ public class UserServiceImpl implements UserService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     UserRepository userRepository;
+    AlbumsServiceClient albumsServiceClient;
 
     @Autowired
-    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository) {
+    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, AlbumsServiceClient albumsServiceClient) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-
+        this.albumsServiceClient = albumsServiceClient;
         this.userRepository = userRepository;
     }
 
@@ -50,7 +55,7 @@ public class UserServiceImpl implements UserService {
         if (userEntity == null) {
             throw new UsernameNotFoundException(username);
         }
-        return new User(userEntity.getEmail(),userEntity.getEncryptedPassword(), new ArrayList<>());
+        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
     }
 
     @Override
@@ -59,7 +64,26 @@ public class UserServiceImpl implements UserService {
         if (userEntity == null) {
             throw new UsernameNotFoundException(email);
         }
-        return new ModelMapper().map(userEntity, UserRest.class) ;
+        return new ModelMapper().map(userEntity, UserRest.class);
+    }
+
+    @Override
+    public UserResponseModel getUserByUserId(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) {
+            throw new RuntimeException();
+        }
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        UserResponseModel responseModel = modelMapper.map(userEntity, UserResponseModel.class);
+        List<AlbumResponseModel> list = albumsServiceClient.getAlbums(userId); // albums/users/{id}/albums
+        if(!list.isEmpty()){
+            System.out.println("xiyupl");
+        }
+        responseModel.setAlbums(list);
+
+        return responseModel;
     }
 
 
